@@ -26,7 +26,8 @@ router.get('/:pid', (req, res) => {
 router.post('/', upload.single('image'), (req, res) => {
     let file = req.file
     let product = req.body
-    product.thumbnail = req.protocol+"://"+req.hostname+":8080"+'/images/'+file.filename
+    product.thumbnail = req.protocol+"://"+req.hostname+'/images/'+file.filename
+    // product.thumbnail = req.protocol+"://"+req.hostname+":8080"+'/images/'+file.filename
     productsService.insert(product)
     .then(result => {
         res.send(result)
