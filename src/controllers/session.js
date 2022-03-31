@@ -1,6 +1,15 @@
 import config from '../config/config.js';
-import {userService} from '../services/services.js';
+import UsersService from '../services/userServicepersistence.js'
 import jwt from 'jsonwebtoken';
+import UserDTO from '../dtos/userDTO.js'
+
+const userService = new UsersService();
+
+const getUsers = async(req,res)=>{
+    let result = await userService.getUsers();
+    let resultDTO = result.map(user=>new UserDTO(user));
+    res.send(resultDTO);
+} 
 
 const current = async(req,res)=>{
     let user = req.user;
@@ -23,6 +32,7 @@ const logout = async(req,res)=>{
 }
 
 export default {
+    getUsers,
     current,
     login,
     logout

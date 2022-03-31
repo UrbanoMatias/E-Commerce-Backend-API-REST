@@ -5,6 +5,8 @@ import { uploader } from '../utils/uploader.js';
 
 const router = express.Router();
 
+router.get('/getUser',sessionControler.getUsers)
+
 router.get('/current',passportCall('jwt'),checkAuthorization(["ADMIN","USER"]),sessionControler.current)
 
 router.post('/',uploader.single('avatar'),passportCall('register'),(req,res)=>{

@@ -17,5 +17,8 @@ export default {
         TWILIO:process.env.TWILIO_USER,
         SID:process.env.SID,
         TOKEN:process.env.TOKEN
+    },
+    app:{
+        persistence:process.env.PERSISTENCE
     }
 }
