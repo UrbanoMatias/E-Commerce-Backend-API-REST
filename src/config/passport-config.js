@@ -1,6 +1,6 @@
 import passport from 'passport';
 import local from 'passport-local';
-import { userService } from '../services/services.js';
+import { userService, cartService } from '../services/services.js';
 import { createHash,isValidPassword,cookieExtractor } from '../utils/utils.js';
 import config from './config.js'
 import jwt from 'passport-jwt';
@@ -23,24 +23,23 @@ const transport = createTransport({
 
 const initializePassport = () => {
     passport.use('register',new LocalStrategy({passReqToCallback:true,usernameField:"email",session:false},async(req,username,password,done)=>{
-        let {first_name,last_name,address,age,phone,email} = req.body;
+        let {first_name,last_name,phone,email} = req.body;
         try {
             if(!req.file) return done(null,false,{messages:"Couldn't upload avatar"})
             let user = await userService.getBy({email:email});
             if(user) return done(null,false,{messages:"User already exists"});
+            let cart = await cartService.save({products:[]})
             const newUser = {
                 first_name,
                 last_name,
-                username,
-                address,
-                age,
-                phone,
                 email,
+                phone,
                 password:createHash(password),
-                cart:[{id:'622a8ffb4391d78b91df7378'}],
                 role:"user",
-                avatar:req.file.filename
+                cart: cart._id,
+                profile_picture:req.file.location
             }
+            console.log(newUser)
             const mail = {
                 from:"Online E-commerce <Online E-commerce>",
                 to: config.twilio.TWILIO,
@@ -59,27 +58,26 @@ const initializePassport = () => {
             return done(error)
         }
     }))
-    passport.use('login',new LocalStrategy({usernameField:"email"},async(username,password,done)=>{
+    passport.use('login',new LocalStrategy({usernameField:'email'},async(username,password,done)=>{
         try{
-            if(username===config.session.ADMIN&&password===config.session.PASSWORD){
-                return done(null,{id:0,role:"admin"})
-            }
+            if(username===config.session.SUPERADMIN&&password===config.session.SUPERADMIN_PASSWORD)
+            return done(null,{id:0,role:"superadmin"})
             const user = await userService.getBy({email:username})
-            if(!user) return done(null,false,{messages:"No user found"})
-            if(!isValidPassword(user,password)) return done(null,false,{messages:"Incorrect password"})
+            if(!user) return done(null,false,{messages:"No user found"});
+            if(!isValidPassword(user,password)) return done(null,false,{messages:"Incorrect password"});
             return done(null,user);
-        }catch(error){
-            return done(error);
+        }catch(err){
+            return done(err);
         }
     }))
     passport.use('jwt',new JWTStrategy({jwtFromRequest:ExtractJwt.fromExtractors([cookieExtractor]),secretOrKey:config.jwt.SECRET},async(jwt_payload,done)=>{
         try{
-            if(jwt_payload.role==="admin") return done(null,jwt_payload);
-            let user = await userService.getBy({_id:jwt_payload._id})
-            if(!user) return done(null,false,{messages:"User not found"});
+            if(jwt_payload.role==="superadmin") return done(null,jwt_payload)
+            let user = await userService.getBy({_id:jwt_payload.id})
+            if(!user) return done(null,false,{messages:"User not found"})
             return done(null,user);
-        }catch(error){
-            return done(error);
+        }catch(err){
+            return done(err)
         }
     }))
     passport.serializeUser((user,done)=>{

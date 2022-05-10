@@ -19,20 +19,6 @@ export default class User{
                 type:String,
                 required:true,
             },
-            username:{
-                type:String,
-                required:true,
-                unique:true,
-                default:"avatar"
-            },
-            address:{
-                type:String,
-                required:true
-            },
-            age:{
-                type:Number,
-                required:true
-            },
             phone:{
                 type:String,
                 required:true
@@ -41,12 +27,17 @@ export default class User{
                 type:String,
                 required:true
             },
-            avatar:{
+            profile_picture:{
                 type:String,
             },
-            cart:[{
-                type:Array
-            }],
+            status:{
+                type:Boolean,
+                default:true
+            },
+            cart:{
+                type:Schema.Types.ObjectId,
+                ref:"Carts"
+            },
             email:{
                 type:String,
                 required:true,

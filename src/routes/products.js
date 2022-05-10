@@ -9,7 +9,7 @@ router.get('/',productsController.getAll)
 router.get('/:pid',productsController.getById)
 
 //POSTS
-router.post('/', upload.single('image'),productsController.insert)
+router.post('/', upload.single('thumbnail'),productsController.insert)
 
 //PUTS
 router.put('/:pid',productsController.update)

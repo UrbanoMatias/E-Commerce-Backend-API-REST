@@ -5,9 +5,9 @@ import { uploader } from '../utils/uploader.js';
 
 const router = express.Router();
 
-router.get('/current',passportCall('jwt'),checkAuthorization(["ADMIN","USER"]),sessionControler.current)
+router.get('/current',passportCall('jwt'),sessionControler.current)
 
-router.post('/',uploader.single('avatar'),passportCall('register'),(req,res)=>{
+router.post('/register',uploader.single('profile_picture'),passportCall('register'),(req,res)=>{
     res.send({message:"Signed up"})
 })
 router.post('/login',passportCall('login'),sessionControler.login)

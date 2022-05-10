@@ -5,7 +5,7 @@ form.addEventListener('submit', (e) => {
     const formData = new FormData(form)
 
     const product = {
-        producName:formData.get('producName'),
+        title:formData.get('title'),
         description:formData.get('description'),
         code:formData.get('code'),
         price:formData.get('price'),
@@ -13,7 +13,7 @@ form.addEventListener('submit', (e) => {
         image:formData.get('image')
     }
     
-    if (!product.producName || !product.description || !product.code || !product.price || !product.stock || product.image.size === 0) {
+    if (!product.title || !product.description || !product.code || !product.price || !product.stock || product.image.size === 0) {
         alert("datos incompletos")
     }
      else {

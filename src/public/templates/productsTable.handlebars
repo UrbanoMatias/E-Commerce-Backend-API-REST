@@ -1,9 +1,11 @@
 {{#if products}}
     {{#each products}}
         <div class="card w-25 text-center m-1 shadow">
-            <h3>{{this.title}}</h3>
-            <p>price: ${{this.price}}</p>
             <img src={{this.thumbnail}} alt="">
+            <h3>{{this.title}}</h3>
+            <h4>{{this.description}}</h4>
+            <p>Precio: ${{this.price}}</p>
+            <p>Stock: {{this.stock}}</p>
         </div>
     {{/each}}
 {{else}}

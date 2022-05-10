@@ -5,8 +5,12 @@ export default {
         url:process.env.MONGO_URL||'mongodb://localhost:27017/proyecto-final'
     },
     session:{
-        ADMIN:process.env.ADMIN,
-        PASSWORD:process.env.PASSWORD
+        SUPERADMIN:process.env.SUPERADMIN,
+        SUPERADMIN_PASSWORD:process.env.SUPERADMIN_PASSWORD
+    },
+    aws:{
+        ACCESS_KEY:process.env.AWS_ACCESS_KEY,
+        SECRET:process.env.AWS_SECRET
     },
     jwt:{
         SECRET:process.env.JWT_SECRET,

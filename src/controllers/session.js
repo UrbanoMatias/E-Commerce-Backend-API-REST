@@ -1,20 +1,28 @@
 import config from '../config/config.js';
-import {userService} from '../services/services.js';
 import jwt from 'jsonwebtoken';
+import { serialize } from '../utils/utils.js';
 
 const current = async(req,res)=>{
-    let user = req.user;
-    res.send(user);
+    let user = serialize(req.user,["first_name","last_name","role","profile_picture","cart"])
+    res.send({status:"success",payload:user});
 }
 
 const login = async(req,res)=>{
-    let user = req.user;
-    let token = jwt.sign(user,config.jwt.SECRET);
+    let user;
+    if(req.user.role!=="superadmin"){
+        user = serialize(req.user,['first_name','last_name']);
+    }else{
+        user=req.user;
+    }
+    let token = jwt.sign(user,config.jwt.SECRET)
     res.cookie(config.jwt.COOKIE,token,{
         httpOnly:true,
-        maxAge:1000*60*60
+        maxAge:60*60*1000
     })
-    res.send({status:"success",message:"Logged in"})
+    res.cookie('sessionCookie','boom',{
+        maxAge:60*60*1000
+    })
+    res.send({status:"success",payload:{user}})
 }
 
 const logout = async(req,res)=>{

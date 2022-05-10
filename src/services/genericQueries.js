@@ -12,6 +12,9 @@ export default class GenericQueries{
     insert = async(document) => {
         return this.dao.insert(document,this.model);
     }
+    save = async(data) =>{
+        return this.dao.insert(data,this.model);
+    }
     update = async(id,document) => {
         document._id = id;
         return this.dao.update(document,this.model);

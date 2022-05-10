@@ -11,3 +11,9 @@ export const cookieExtractor = req =>{
     return token;
 }
 
+export const serialize = (object,keys) =>{
+    let serializedObject = Object.fromEntries(Object.entries(object).filter(pair=>keys.includes(pair[0])))
+    serializedObject.id = object._id;
+    return serializedObject;
+}
+

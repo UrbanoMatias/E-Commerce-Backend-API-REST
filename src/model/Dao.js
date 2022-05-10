@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
-import Carts from './Carts.js';
+import Carts from './Cart.js';
 import Products from './Products.js';
 import User from './User.js';
+import Message from './Message.js';
 
 export default class Dao{
     constructor(config){
@@ -9,15 +10,18 @@ export default class Dao{
             console.log(error);
             process.exit();
         })
+        
         const timestamp = {timestamps:{createdAt:'created_at',updatedAt:'updated_at'}};
         const userSchema = mongoose.Schema(User.schema,timestamp);
         const productsSchema = mongoose.Schema(Products.schema,timestamp);
         const cartSchema = mongoose.Schema(Carts.schema,timestamp);
+        const messageSchema = mongoose.Schema(Message.schema,timestamp);
 
         this.models = {
             [User.model]:mongoose.model(User.model,userSchema),
             [Products.model]:mongoose.model(Products.model,productsSchema),
-            [Carts.model]:mongoose.model(Carts.model, cartSchema)
+            [Carts.model]:mongoose.model(Carts.model,cartSchema),
+            [Message.model]:mongoose.model(Message.model,messageSchema)
         }
     }
     findOne = async(options,entity)=>{
