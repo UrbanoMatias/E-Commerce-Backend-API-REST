@@ -14,7 +14,6 @@ const getById = async(req,res)=>{
 
 const insert = async(req,res)=>{
     let product = req.body
-    // product.thumbnail = req.protocol+"://"+req.hostname+'/images/'+file.filename
     product.thumbnail = req.file.location
     productService.insert(product)
     .then(result => {

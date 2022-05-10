@@ -4,12 +4,9 @@ import passport from 'passport';
 import initializePassport from './config/passport-config.js';
 import sessionRouter from './routes/session.js';
 import productsRouter from './routes/products.js';
-import cartRouter from './routes/carts.js'
+import cartRouter from './routes/carts.js';
 import cookieParser from 'cookie-parser';
-import __dirname from './utils.js';
-import {engine} from 'express-handlebars';
-import {Server} from 'socket.io'; 
-import { productService } from './services/services.js';
+import {Server} from 'socket.io';
 import { messageService } from './services/services.js'
 import { createLogger } from './logger.js';
 
@@ -26,15 +23,7 @@ const io = new Server(server,{
       }
 })
 
-app.engine('handlebars', engine())
-app.set('view engine', 'handlebars')
-app.set('views', __dirname+'/views')
-
-
 app.use(express.json());
-app.use('/images', express.static(__dirname+'/public'))
-app.use('/avatar/', express.static(__dirname + '/public'))
-app.use(express.static(__dirname+'/public'));
 app.use(express.urlencoded({extended:true}));
 app.use(cors({credentials:true, origin:"http://localhost:3000"}))
 app.use(cookieParser());
@@ -44,20 +33,11 @@ app.use('/api/session',sessionRouter);
 app.use('/api/products',productsRouter);
 app.use('/api/carts',cartRouter);
 
-
-io.on('connection', async socket => {
-    console.log(`the socket ${socket.id} is connected`)
-    let allProducts = await productService.getAll()
-    socket.emit('deliverProducts', allProducts)
-})
-
 let connectedSockets = {};
 io.on('connection', async socket=>{
     console.log("client connected");
     if(socket.handshake.query.name){
-        //Check if there's an associated id with socketId
         if(Object.values(connectedSockets).some(user=>user.id===socket.handshake.query.id)){
-            //replace socket id for current connected socket
             Object.keys(connectedSockets).forEach(idSocket =>{
                 if(connectedSockets[idSocket].id===socket.handshake.query.id){
                     delete connectedSockets[idSocket];
@@ -79,7 +59,6 @@ io.on('connection', async socket=>{
     io.emit('users',connectedSockets)
     let logs = await messageService.getAllAndPopulate();
     io.emit('logs',logs);
-    //Other listeners
     socket.on('disconnect',reason=>{
         delete connectedSockets[socket.id]
     })

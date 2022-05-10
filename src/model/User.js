@@ -20,7 +20,7 @@ export default class User{
                 required:true,
             },
             phone:{
-                type:String,
+                type:Number,
                 required:true
             },
             role:{
