@@ -23,7 +23,7 @@ const s3 = new aws.S3({
 export const uploader = multer({
     storage:multerS3({
         s3:s3,
-        bucket:'matiasurbanobucket',
+        bucket:'s3-ecommerce-urbano',
         metadata:(req,file,cb)=>{
             cb(null,{fieldName:file.fieldname})
         },
