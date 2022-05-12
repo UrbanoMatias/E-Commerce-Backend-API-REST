@@ -37,7 +37,7 @@ const initializePassport = () => {
                 password:createHash(password),
                 role:"user",
                 cart: cart._id,
-                profile_picture:req.file.location
+                profile_picture:req.protocol+"://"+req.hostname+":8080"+'/avatar/'+req.file.filename
             }
             console.log(newUser)
             const mail = {

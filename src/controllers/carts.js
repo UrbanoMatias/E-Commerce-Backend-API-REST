@@ -1,4 +1,18 @@
-import { cartService, productService } from "../services/services.js";
+import { cartService, productService, userService } from "../services/services.js";
+import { createTransport } from 'nodemailer';
+import twilio from 'twilio';
+import config from "../config/config.js";
+
+const client = twilio(config.twilio.SID,config.twilio.TOKEN)
+
+const transport = createTransport({
+    service: 'gmail',
+    port: 587,
+    auth: {
+        user: config.twilio.TWILIO,
+        pass: config.twilio.PWD
+    }
+})
 
 const getCartById = async(req,res) =>{
     let id = req.params.cid;
@@ -91,6 +105,60 @@ const confirm = async(req,res)=>{
     let {cid} = req.params;
     let cart = await cartService.getBy({_id:cid});
     if(!cart)  return res.status(404).send({status:"error",error:"Can't find cart"});
+    let user = await userService.getBy({cart:cid})
+    if(!user) res.status(404).send({status:"error", error:"Not found"})
+    
+    let cartPopulate = await cartService.getByWithPopulate({_id:cid})
+    let productsInCart = await cartPopulate.products.map(prod => prod.product)
+    
+    const mail = {
+                from:"Online E-commerce <Online E-commerce>",
+                to: process.env.TWILIO_USER,
+                subject:`nuevo pedido de ${user.email}`,
+                html:`
+
+                    <h1>Productos comprados de ${user.first_name} ${user.last_name}: </h1>
+                    ${productsInCart.map(prod => `
+                                    <h2>${prod.title}</h2>
+                                    <h3>$${prod.price} por unidad</h3>
+                                    <p>${prod.description}</p>
+                                   
+                    `)}
+                    <p>${JSON.stringify(cart.products)}</p>
+                `
+            }
+        
+            let emailResult = transport.sendMail(mail)
+
+            let wspResult = await client.messages.create({
+                from: "whatsapp:+14155238886",
+                to:"whatsapp:+5491139165275",
+                body:`nuevo pedido de ${user.first_name} ${user.last_name}:, 
+                productos: <h1>Productos a comprar de ${user.first_name} ${user.last_name}: </h1>
+                            ${productsInCart.map(prod => `
+                                                <h2>${prod.title}</h2>
+                                                <h3>${prod.price}</h3>
+                                                <p>${prod.description}</p>
+                                            
+                                `)}
+                            <p>${JSON.stringify(cart.products)}</p>
+                 `,
+            })
+        
+             const sms = await client.messages.create({
+                 body:`Hola ${user.first_name}, su pedido ha sido registrado y se encuentra en proceso. 
+                        Productos:<h1>Productos a comprar de ${user.first_name} ${user.last_name}: </h1>
+                                    ${productsInCart.map(prod => `
+                                    <h2>${prod.title}</h2>
+                                    <h3>${prod.price}</h3>
+                                    <p>${prod.description}</p>
+                                   
+                                     `)}
+                                    <p>${JSON.stringify(cart.products)}</p>`,
+                 from:'+19036051039',
+                 to:`+${user.phone}`
+             })
+
     cart.products=[];
     await cartService.update(cid,cart);
     res.send({status:"success",message:"Finished purchase!"})

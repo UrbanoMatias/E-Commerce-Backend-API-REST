@@ -6,6 +6,7 @@ import sessionRouter from './routes/session.js';
 import productsRouter from './routes/products.js';
 import cartRouter from './routes/carts.js';
 import cookieParser from 'cookie-parser';
+import __dirname from './utils.js';
 import {Server} from 'socket.io';
 import { messageService } from './services/services.js'
 import { createLogger } from './logger.js';
@@ -25,7 +26,10 @@ const io = new Server(server,{
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-app.use(cors({credentials:true, origin:"http://localhost:3000"}))
+app.use(cors({credentials:true, origin:"http://localhost:3000"}));
+app.use('/images', express.static(__dirname+'/public'))
+app.use('/avatar/', express.static(__dirname + '/public'))
+app.use(express.static(__dirname+'/public'));
 app.use(cookieParser());
 initializePassport();
 app.use(passport.initialize());
@@ -37,7 +41,9 @@ let connectedSockets = {};
 io.on('connection', async socket=>{
     console.log("client connected");
     if(socket.handshake.query.name){
+        
         if(Object.values(connectedSockets).some(user=>user.id===socket.handshake.query.id)){
+            
             Object.keys(connectedSockets).forEach(idSocket =>{
                 if(connectedSockets[idSocket].id===socket.handshake.query.id){
                     delete connectedSockets[idSocket];
@@ -59,6 +65,7 @@ io.on('connection', async socket=>{
     io.emit('users',connectedSockets)
     let logs = await messageService.getAllAndPopulate();
     io.emit('logs',logs);
+    
     socket.on('disconnect',reason=>{
         delete connectedSockets[socket.id]
     })

@@ -13,11 +13,11 @@ const getById = async(req,res)=>{
 }
 
 const insert = async(req,res)=>{
-    let product = req.body
-    product.thumbnail = req.file.location
-    productService.insert(product)
-    .then(result => {
-        res.send(result)
+    let file = req.file;
+    let product = req.body;
+    product.thumbnail = req.protocol+"://"+req.hostname+":8080"+'/images/'+file.filename;
+    productService.save(product).then(result => {
+        res.send({status:"success",payload:result,message:'Product added'})
     })
 }
 
