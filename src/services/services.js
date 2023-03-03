@@ -1,6 +1,6 @@
 import Dao from "../model/Dao.js";
 import UserService from "./userService.js";
-import ProductService from './productService.js';
+import ProductService from "./productService.js";
 import CartService from "./cartService.js";
 import config from "../config/config.js";
 import MessageService from "./MessageService.js";
